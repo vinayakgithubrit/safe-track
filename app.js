@@ -33,9 +33,20 @@ if (sslKeyPath && sslCertPath && fs.existsSync(sslKeyPath) && fs.existsSync(sslC
 } else {
     server = http.createServer(app);
 }
+
+const allowedOrigins = (process.env.CLIENT_URL || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+const corsConfig = allowedOrigins.length > 0
+    ? { origin: allowedOrigins, credentials: true }
+    : { origin: '*', credentials: false };
+
 const io = socketio(server, {
     cors: {
-        origin: "*",
+        origin: corsConfig.origin,
+        credentials: corsConfig.credentials,
         methods: ["GET", "POST"]
     }
 });
@@ -66,10 +77,7 @@ app.use(helmet({
         }
     }
 }));
-app.use(cors({
-    origin: "*",
-    credentials: false
-}));
+app.use(cors(corsConfig));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));

@@ -322,8 +322,11 @@ function initializeSocketListeners() {
         return;
     }
     
-    // Connect to socket
-    socket = io();
+    // Connect to socket (supports split frontend/backend deployment)
+    const socketServerUrl = window.__SOCKET_SERVER_URL__ || '';
+    socket = socketServerUrl
+        ? io(socketServerUrl, { transports: ['websocket', 'polling'] })
+        : io();
     window.socket = socket;
     
     socket.on('connect', () => {
