@@ -1,0 +1,7 @@
+node_modules
+certs
+logs
+.env
+.env.local
+.env.*.local
+backups

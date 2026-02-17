@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SafeTrack - Real Time Tracking</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    
+    <!-- Your CSS -->
+    <link rel="stylesheet" href="/css/style.css?v=20260217-mobilefix2">
+    <link rel="stylesheet" href="/css/mobile-fix.css?v=20260217-mobilefix2">
+
+    <!-- Critical fallback styles: prevent stacked screens if CSS fails to load -->
+    <style>
+        html, body { margin: 0; padding: 0; }
+        html {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+        }
+        #landing-page {
+            display: flex;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        #login-modal, #main-app { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- ========== LANDING PAGE ========== -->
+    <div class="landing-page" id="landing-page">
+        <!-- Navigation -->
+        <nav class="nav">
+            <div class="logo">🛡️ SafeTrack</div>
+            <button class="nav-btn" id="get-started-btn">Get Started</button>
+        </nav>
+        
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="hero-content">
+                <h1>
+                    Stay Safe.<br>
+                    <span class="gradient-text">Stay Connected.</span>
+                </h1>
+                <p>Real-time location tracking with emergency SOS for campus safety</p>
+                <button class="cta-button" id="start-tracking-btn">
+                    Start Tracking →
+                </button>
+            </div>
+            
+            <!-- Features Preview -->
+            <div class="features-preview">
+                <div class="feature-pill">🚨 Emergency SOS</div>
+                <div class="feature-pill">💬 Live Chat</div>
+                <div class="feature-pill">📍 Real-time Tracking</div>
+                <div class="feature-pill">🛡️ Safe Zones</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== LOGIN MODAL ========== -->
+    <div class="login-modal" id="login-modal">
+        <div class="login-container">
+            <div class="login-header">
+                <h2>Welcome Back</h2>
+                <p>Enter your name to start tracking</p>
+            </div>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="username-input">Your Name</label>
+                    <input 
+                        type="text" 
+                        id="username-input" 
+                        placeholder="Enter your name"
+                        required
+                        autocomplete="name"
+                    >
+                </div>
+                
+                <div class="input-group">
+                    <label for="user-id">Student ID (Optional)</label>
+                    <input 
+                        type="text" 
+                        id="user-id" 
+                        placeholder="e.g., ECE2021031"
+                        autocomplete="username"
+                    >
+                </div>
+                
+                <button type="button" id="continue-btn" class="login-btn">
+                    Continue →
+                </button>
+                
+                <button type="button" id="skip-btn" class="skip-btn">
+                    Skip for now
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========== MAIN APP ========== -->
+    <div class="main-app" id="main-app">
+    
+        <!-- Header -->
+        <div class="header">
+            <h1>📍 Live Track</h1>
+            <div class="user-info">
+                <span id="username-display"></span>
+                <span class="user-count">👥 <span id="user-count">0</span> online</span>
+                <button id="request-location" class="location-btn">📍 Get Location</button>
+                <button id="logout-btn" class="logout-btn">🚪 Logout</button>
+            </div>
+        </div>
+        
+        <div class="app-main">
+            <!-- 👥 USERS SIDEBAR 👥 -->
+            <div class="users-sidebar" id="users-sidebar">
+                <div class="sidebar-header">
+                    <h3>👥 Active Users</h3>
+                </div>
+                <div class="users-list" id="users-list">
+                    <div class="loading">Loading users...</div>
+                </div>
+            </div>
+
+            <!-- 📍 MAP CONTAINER 📍 -->
+            <div class="map-wrapper">
+                <div id="map"></div>
+            </div>
+        </div>
+
+        <!-- 📊 TRACKING ANALYSIS 📊 -->
+        <div class="tracking-analysis tracking-analysis-full">
+            <div class="analysis-header">
+                <h4>📊 Tracking Analysis</h4>
+            </div>
+            <div class="analysis-grid">
+                <div class="analysis-box">
+                    <div class="analysis-box-header">
+                        <h5>📍 Distance</h5>
+                    </div>
+                    <div class="analysis-box-value" id="distance-traveled">0.00 km</div>
+                </div>
+                <div class="analysis-box">
+                    <div class="analysis-box-header">
+                        <h5>⏱️ Active Time</h5>
+                    </div>
+                    <div class="analysis-box-value" id="active-time">00:00:00</div>
+                </div>
+                <div class="analysis-box">
+                    <div class="analysis-box-header">
+                        <h5>🚀 Current Speed</h5>
+                    </div>
+                    <div class="analysis-box-value" id="current-speed">0.0 km/h</div>
+                </div>
+                <div class="analysis-box">
+                    <div class="analysis-box-header">
+                        <h5>📈 Average Speed</h5>
+                    </div>
+                    <div class="analysis-box-value" id="average-speed">0.0 km/h</div>
+                </div>
+                <div class="analysis-box">
+                    <div class="analysis-box-header">
+                        <h5>⚡ Max Speed</h5>
+                    </div>
+                    <div class="analysis-box-value" id="max-speed">0.0 km/h</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🚨 SOS EMERGENCY BUTTON 🚨 -->
+        <div class="sos-container">
+            <button id="sos-button" class="sos-btn" title="Emergency SOS">
+                🚨 SOS
+            </button>
+            <div id="sos-timer" class="sos-timer" style="display: none;">
+                Cancelling in <span id="countdown">5</span>s
+            </div>
+        </div>
+
+        <!-- 🚶 Walk with me -->
+        <div class="walk-mode-container">
+            <button id="walk-mode-btn" class="walk-mode-btn" title="Walk with me">
+                🚶
+            </button>
+        </div>
+
+        <!-- Walk Mode: Start Modal -->
+        <div id="walk-mode-modal" class="walk-mode-modal" style="display: none;">
+            <div class="walk-modal-content">
+                <div class="walk-modal-header">
+                    <h2>🚶‍♀️ Start Walk-Me-Home</h2>
+                    <button type="button" class="walk-modal-close" id="walk-modal-close">×</button>
+                </div>
+                <div class="walk-modal-body">
+                    <div class="walk-friends-section">
+                        <h3>Select Trusted Friends (Max 3)</h3>
+                        <div id="walk-friend-list" class="walk-friend-list"></div>
+                    </div>
+                    <div class="walk-destination-section">
+                        <h3>Destination</h3>
+                        <input id="walk-destination-input" type="text" placeholder="e.g. Home, Hostel, Library">
+                    </div>
+                    <div class="walk-modal-actions">
+                        <button type="button" class="walk-btn-cancel" id="walk-cancel-btn">Cancel</button>
+                        <button type="button" class="walk-btn-start" id="walk-start-btn">Start Walking</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Walk Mode: Active Modal -->
+        <div id="walk-tracking-modal" class="walk-tracking-modal" style="display: none;">
+            <div class="walk-tracking-content">
+                <div class="walk-tracking-header">
+                    <h2>🚶‍♀️ Walk Mode Active</h2>
+                </div>
+                <div class="walk-tracking-body">
+                    <div class="walk-info-grid">
+                        <div class="walk-info-item">
+                            <div class="walk-info-label">Duration</div>
+                            <div id="walk-duration" class="walk-info-value">00:00</div>
+                        </div>
+                        <div class="walk-info-item">
+                            <div class="walk-info-label">Friends Watching</div>
+                            <div id="walk-active-friends" class="walk-info-value">0</div>
+                        </div>
+                    </div>
+                    <div class="walk-actions">
+                        <button type="button" class="walk-btn-safe" id="walk-safe-btn">✅ Reached Safely</button>
+                        <button type="button" class="walk-btn-emergency" id="walk-emergency-btn">🚨 Emergency</button>
+                        <button type="button" class="walk-btn-cancel" id="walk-stop-btn">Stop Walk Mode</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Walk Mode Watching Banner -->
+        <div id="walk-watching-banner" class="walk-watching-banner" style="display: none;">
+            <span id="walk-watching-label">👁️ Watching walk</span>
+        </div>
+
+        <!-- 🛡️ Safe Zones -->
+        <div class="safe-zone-container">
+            <button id="safe-zone-btn" class="safe-zone-btn" title="Safe zones">
+                🛡️
+            </button>
+        </div>
+
+        <!-- 💬 FLOATING CHAT BUTTON & PANEL -->
+        <div class="chat-float-button" id="chat-float-btn">
+            <span class="chat-icon">💬</span>
+            <span class="unread-badge" id="unread-badge" style="display: none;">0</span>
+        </div>
+
+        <div class="chat-float-panel" id="chat-panel" style="display: none;">
+            <div class="chat-panel-header">
+                <h3>💬 Chat Room</h3>
+                <div class="chat-header-actions">
+                    <button class="notification-toggle" id="notification-toggle" title="Toggle notifications">🔔</button>
+                    <button class="chat-close-btn" id="chat-close-btn">×</button>
+                </div>
+            </div>
+            <div class="chat-panel-body">
+                <div id="chat-messages-float" class="chat-messages-float"></div>
+            </div>
+            <div class="chat-panel-input">
+                <form id="chat-form-float">
+                    <input type="text" id="chat-input-float" placeholder="Type a message..." autocomplete="off" maxlength="200">
+                    <button type="submit" class="chat-send-btn">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Main JavaScript -->
+    <script src="/js/beautiful-markers.js?v=20260216"></script>
+    <script src="/js/script.js?v=20260216"></script>
+    <script src="/js/iet-davv-zones.js?v=20260216"></script>
+    <script src="/js/geofencing.js?v=20260216"></script>
+    <script src="/js/landing-flow.js?v=20260216"></script>
+</body>
+</html>

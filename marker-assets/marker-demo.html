@@ -1,0 +1,427 @@
+// ========== VISUAL MARKER DEMO PAGE ==========
+// Create this as a separate HTML file to preview all markers
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeTrack GPS - Beautiful Markers Demo</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f7fa;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        
+        .marker-legend {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-width: 300px;
+            z-index: 1000;
+        }
+        
+        .marker-legend h3 {
+            margin-bottom: 15px;
+            color: #2d3748;
+            font-size: 18px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .legend-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+        
+        .legend-text {
+            flex: 1;
+        }
+        
+        .legend-text strong {
+            display: block;
+            font-size: 13px;
+            color: #2d3748;
+            margin-bottom: 2px;
+        }
+        
+        .legend-text span {
+            font-size: 11px;
+            color: #718096;
+        }
+        
+        /* All the marker styles from beautiful-markers.js */
+        /* Pasting them here... */
+        
+        .pulse-marker {
+            position: relative;
+            width: 24px;
+            height: 24px;
+        }
+
+        .pulse-marker-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            background: #4285F4;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+        }
+
+        .pulse-marker-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            background: rgba(66, 133, 244, 0.3);
+            border-radius: 50%;
+            animation: pulse 2s ease-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(3);
+                opacity: 0;
+            }
+        }
+
+        .walking-marker {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        .walking-marker-circle {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+            border: 3px solid white;
+        }
+
+        .walking-marker-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #28a745;
+            border-radius: 50%;
+            animation: ripple 1.5s ease-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        .sos-marker {
+            position: relative;
+            width: 60px;
+            height: 60px;
+        }
+
+        .sos-marker-pulse {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(220, 53, 69, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: sosPulse 1s ease-out infinite;
+        }
+
+        .sos-marker-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: #dc3545;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            border: 4px solid white;
+            box-shadow: 0 4px 16px rgba(220, 53, 69, 0.6);
+            animation: sosFlash 0.5s ease-in-out infinite;
+        }
+
+        @keyframes sosPulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        @keyframes sosFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .photo-marker {
+            position: relative;
+            width: 50px;
+            height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .photo-marker-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .photo-marker-arrow {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid white;
+            margin-top: -1px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div class="marker-legend">
+        <h3>🗺️ Marker Types</h3>
+        
+        <div class="legend-item">
+            <div class="legend-icon">
+                <div class="pulse-marker">
+                    <div class="pulse-marker-ring"></div>
+                    <div class="pulse-marker-inner"></div>
+                </div>
+            </div>
+            <div class="legend-text">
+                <strong>Your Location</strong>
+                <span>Pulsing blue dot</span>
+            </div>
+        </div>
+        
+        <div class="legend-item">
+            <div class="legend-icon">
+                <div class="photo-marker" style="transform: scale(0.8);">
+                    <div class="photo-marker-image">JD</div>
+                    <div class="photo-marker-arrow"></div>
+                </div>
+            </div>
+            <div class="legend-text">
+                <strong>Other Users</strong>
+                <span>Profile photo pin</span>
+            </div>
+        </div>
+        
+        <div class="legend-item">
+            <div class="legend-icon">
+                <div class="walking-marker" style="transform: scale(0.8);">
+                    <div class="walking-marker-ring"></div>
+                    <div class="walking-marker-circle">🚶‍♀️</div>
+                </div>
+            </div>
+            <div class="legend-text">
+                <strong>Walk Mode</strong>
+                <span>Animated walking icon</span>
+            </div>
+        </div>
+        
+        <div class="legend-item">
+            <div class="legend-icon">
+                <div class="sos-marker" style="transform: scale(0.7);">
+                    <div class="sos-marker-pulse"></div>
+                    <div class="sos-marker-inner">🚨</div>
+                </div>
+            </div>
+            <div class="legend-text">
+                <strong>SOS Emergency</strong>
+                <span>Pulsing red alert</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize map (centered on IET-DAVV)
+        const map = L.map('map').setView([22.6870, 75.8610], 15);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Helper function to create pulsing marker
+        function createPulsingMarker(lat, lng) {
+            const markerHTML = `
+                <div class="pulse-marker">
+                    <div class="pulse-marker-ring"></div>
+                    <div class="pulse-marker-ring" style="animation-delay: 0.5s;"></div>
+                    <div class="pulse-marker-inner"></div>
+                </div>
+            `;
+            
+            return L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: markerHTML,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                })
+            });
+        }
+        
+        // Helper for photo marker
+        function createPhotoMarker(lat, lng, initials) {
+            const markerHTML = `
+                <div class="photo-marker">
+                    <div class="photo-marker-image">${initials}</div>
+                    <div class="photo-marker-arrow"></div>
+                </div>
+            `;
+            
+            return L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: markerHTML,
+                    iconSize: [50, 60],
+                    iconAnchor: [25, 60]
+                })
+            });
+        }
+        
+        // Helper for walking marker
+        function createWalkingMarker(lat, lng) {
+            const markerHTML = `
+                <div class="walking-marker">
+                    <div class="walking-marker-ring"></div>
+                    <div class="walking-marker-circle">🚶‍♀️</div>
+                </div>
+            `;
+            
+            return L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: markerHTML,
+                    iconSize: [50, 50],
+                    iconAnchor: [25, 25]
+                })
+            });
+        }
+        
+        // Helper for SOS marker
+        function createSOSMarker(lat, lng) {
+            const markerHTML = `
+                <div class="sos-marker">
+                    <div class="sos-marker-pulse"></div>
+                    <div class="sos-marker-pulse" style="animation-delay: 0.5s;"></div>
+                    <div class="sos-marker-inner">🚨</div>
+                </div>
+            `;
+            
+            return L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: markerHTML,
+                    iconSize: [60, 60],
+                    iconAnchor: [30, 30]
+                })
+            });
+        }
+        
+        // Add example markers
+        createPulsingMarker(22.6870, 75.8610).addTo(map)
+            .bindPopup('<b>Your Location</b><br>Pulsing blue marker');
+        
+        createPhotoMarker(22.6880, 75.8620, 'AV').addTo(map)
+            .bindPopup('<b>Ava</b><br>Friend marker');
+        
+        createPhotoMarker(22.6860, 75.8600, 'MK').addTo(map)
+            .bindPopup('<b>Mark</b><br>Friend marker');
+        
+        createWalkingMarker(22.6875, 75.8605).addTo(map)
+            .bindPopup('<b>Walking Mode</b><br>Live tracking active');
+        
+        createSOSMarker(22.6885, 75.8615).addTo(map)
+            .bindPopup('<b>🚨 EMERGENCY</b><br>SOS Alert');
+    </script>
+</body>
+</html>

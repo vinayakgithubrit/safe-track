@@ -1,0 +1,344 @@
+<!-- ================================================================ -->
+<!-- WALK-ME-HOME FEATURE - HTML UI COMPONENTS -->
+<!-- Add these to your index.html -->
+<!-- ================================================================ -->
+
+<!-- 1. WALK MODE BUTTON (Bottom Left Corner) -->
+<button id="walk-mode-btn" class="walk-mode-button" onclick="showWalkModal()" title="Walk-Me-Home Mode">
+    🚶‍♀️
+</button>
+
+<!-- 2. WALK MODE MODAL (Select Friends & Destination) -->
+<div id="walk-mode-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 500px; max-height: 80vh; overflow-y: auto;">
+        <h2 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 32px;">🚶‍♀️</span>
+            <span>Start Walk-Me-Home Mode</span>
+        </h2>
+        
+        <p style="margin-bottom: 20px; color: #666; font-size: 14px;">
+            Share your live location with trusted friends while walking home
+        </p>
+        
+        <!-- Friend Selector -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 15px;">
+                Select Trusted Friends <span style="color: #999; font-weight: normal;">(Max 3)</span>
+            </label>
+            <div id="friend-list" class="friend-list" style="
+                max-height: 200px;
+                overflow-y: auto;
+                border: 2px solid #e0e0e0;
+                border-radius: 12px;
+                padding: 10px;
+                background: #f8f9fa;
+            ">
+                <div style="text-align: center; color: #999; padding: 30px; font-size: 14px;">
+                    Loading friends...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Destination Input -->
+        <div style="margin-bottom: 25px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 15px;">
+                Destination
+            </label>
+            <input 
+                type="text" 
+                id="walk-destination-input" 
+                placeholder="e.g., Home, Hostel, Library"
+                style="
+                    width: 100%;
+                    padding: 14px;
+                    border: 2px solid #e0e0e0;
+                    border-radius: 10px;
+                    font-size: 15px;
+                    transition: border-color 0.2s;
+                "
+                onfocus="this.style.borderColor='#28a745'"
+                onblur="this.style.borderColor='#e0e0e0'"
+            >
+        </div>
+        
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 12px;">
+            <button onclick="closeWalkModal()" style="
+                flex: 1;
+                padding: 14px;
+                background: #f5f5f5;
+                border: 1px solid #ddd;
+                border-radius: 10px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            " onmouseover="this.style.background='#e0e0e0'" onmouseout="this.style.background='#f5f5f5'">
+                Cancel
+            </button>
+            <button onclick="startWalkMode()" style="
+                flex: 2;
+                padding: 14px;
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(40,167,69,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                🚶‍♀️ Start Walking
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 3. WALK TRACKING MODAL (Active Walk Status) -->
+<div id="walk-tracking-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 400px;">
+        <h2 style="margin-bottom: 20px; text-align: center; color: #28a745;">
+            🚶‍♀️ Walk Mode Active
+        </h2>
+        
+        <!-- Walk Stats -->
+        <div style="
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        ">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                <div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Duration</div>
+                    <div id="walk-duration" style="font-size: 24px; font-weight: bold; color: #28a745;">00:00</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Friends Watching</div>
+                    <div id="walk-active-friends" style="font-size: 24px; font-weight: bold; color: #28a745;">0</div>
+                </div>
+            </div>
+            
+            <div style="font-size: 13px; color: #666; text-align: center;">
+                Your friends can see your live location
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button onclick="markReachedSafely()" style="
+                width: 100%;
+                padding: 14px;
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                ✅ Reached Safely
+            </button>
+            
+            <button onclick="emergencyWalkAlert()" style="
+                width: 100%;
+                padding: 14px;
+                background: #dc3545;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                🚨 Emergency Alert
+            </button>
+            
+            <button onclick="stopWalkMode()" style="
+                width: 100%;
+                padding: 12px;
+                background: transparent;
+                color: #999;
+                border: 1px solid #ddd;
+                border-radius: 10px;
+                font-size: 14px;
+                cursor: pointer;
+            ">
+                Cancel Walk Mode
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 4. WALK MODE STATUS INDICATOR (Top Bar) -->
+<div id="walk-mode-status" style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 12px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 999;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+">
+    🚶‍♀️ Walk Mode Active • <span id="walk-friends-count">0</span> friends watching
+</div>
+
+<!-- ================================================================ -->
+<!-- CSS STYLES -->
+<!-- ================================================================ -->
+
+<style>
+/* Walk Mode Button */
+.walk-mode-button {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 65px;
+    height: 65px;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-radius: 50%;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(40, 167, 69, 0.4);
+    transition: all 0.3s ease;
+    z-index: 998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.walk-mode-button:hover {
+    transform: scale(1.1) translateY(-5px);
+    box-shadow: 0 8px 30px rgba(40, 167, 69, 0.6);
+}
+
+.walk-mode-button:active {
+    transform: scale(1.05) translateY(-2px);
+}
+
+.walk-mode-button.active {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    animation: pulse-button 2s ease-in-out infinite;
+}
+
+@keyframes pulse-button {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 4px 20px rgba(220, 53, 69, 0.4);
+    }
+    50% { 
+        transform: scale(1.05);
+        box-shadow: 0 8px 30px rgba(220, 53, 69, 0.6);
+    }
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Friend List */
+.friend-list {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc #f8f9fa;
+}
+
+.friend-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.friend-list::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.friend-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.friend-list::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+.friend-item {
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+}
+
+.friend-item:hover {
+    background: #e3f2fd;
+    transform: translateX(5px);
+}
+
+.friend-item.selected {
+    background: linear-gradient(135deg, #e7f3ff 0%, #d0e8ff 100%);
+    border: 2px solid #667eea;
+}
+
+.friend-item.selected:hover {
+    background: linear-gradient(135deg, #d0e8ff 0%, #b8dcff 100%);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .walk-mode-button {
+        bottom: 20px;
+        left: 20px;
+        width: 55px;
+        height: 55px;
+        font-size: 24px;
+    }
+    
+    .modal-content {
+        padding: 20px;
+        max-width: 90% !important;
+    }
+}
+</style>
